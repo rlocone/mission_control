@@ -1,57 +1,116 @@
-# 🎛️ Mission Control Dashboard
+<div align="center">
 
-**A Multi-Agent Orchestration System for Automated Research & Intelligence**
+# 🎛️ MISSION CONTROL
 
-Mission Control is an AI-powered command center that coordinates specialized research agents to deliver daily intelligence briefings on AI developments, medical research, and cybersecurity threats. Built on [Abacus AI](https://abacus.ai) with a Next.js dashboard.
+### Multi-Agent Intelligence Orchestration System
 
-![Dashboard](https://img.shields.io/badge/Dashboard-Live-brightgreen) ![Agents](https://img.shields.io/badge/Agents-4-blue) ![Next.js](https://img.shields.io/badge/Next.js-14-black) ![TypeScript](https://img.shields.io/badge/TypeScript-5.2-blue) ![Python](https://img.shields.io/badge/Python-3.11-yellow)
+![Status](https://img.shields.io/badge/STATUS-OPERATIONAL-00ffff?style=for-the-badge&labelColor=0f172a)
+![Agents](https://img.shields.io/badge/AGENTS-4_ACTIVE-a855f7?style=for-the-badge&labelColor=0f172a)
+![Platform](https://img.shields.io/badge/PLATFORM-ABACUS_AI-06b6d4?style=for-the-badge&labelColor=0f172a)
+
+<br/>
+
+![Next.js](https://img.shields.io/badge/Next.js_14-0f172a?style=flat-square&logo=next.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-0f172a?style=flat-square&logo=typescript&logoColor=3178c6)
+![Tailwind](https://img.shields.io/badge/Tailwind_CSS-0f172a?style=flat-square&logo=tailwindcss&logoColor=06b6d4)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-0f172a?style=flat-square&logo=postgresql&logoColor=4169e1)
+![Python](https://img.shields.io/badge/Python_3.11-0f172a?style=flat-square&logo=python&logoColor=ffd43b)
 
 ---
 
-## 🌟 Overview
+**An AI-powered command center coordinating specialized research agents<br/>to deliver daily intelligence on AI, Medical Research & Cybersecurity**
 
-Mission Control automates the collection, synthesis, and delivery of research intelligence across three domains:
+[Live Dashboard](https://rose.abacusai.app) · [RSS Feeds](#-rssatom-feeds) · [API Docs](#-api-endpoints)
 
-- **AI & Technology** — Latest developments in LLMs, foundational models, and AI research
-- **Medical Research** — IVF, epigenetics, reproductive health from PubMed & bioRxiv
-- **Cybersecurity** — CVEs, zero-days, CISA KEV, kernel vulnerabilities, and threat intelligence
+</div>
 
-Reports are generated daily at 08:00 AM EST and delivered via email with full dashboard visualization.
+---
+
+## 🌐 Overview
+
+Mission Control automates intelligence collection across three critical domains:
+
+| Domain | Focus Areas | Delivery |
+|:-------|:------------|:---------|
+| 🤖 **AI & Technology** | LLMs, foundation models, research papers | Daily @ 08:00 EST |
+| 🧬 **Medical Research** | IVF, epigenetics, reproductive health | Daily @ 08:00 EST |
+| 🔐 **Cybersecurity** | CVEs, zero-days, CISA KEV, kernel vulns | Daily @ 08:00 EST |
 
 ---
 
 ## 🤖 The Agents
 
-| Agent | Role | Model | Specialty |
-|-------|------|-------|----------|
-| 🌹 **Rose** | Supervisor | RouteLLM | Orchestration, task routing, quality control |
-| 🔬 **Cathy** | AI Research Specialist | Gemini | AI/ML papers, model releases, tech trends |
-| 🧬 **Ruthie** | Medical Research Specialist | GPT-5-mini | PubMed/bioRxiv literature, clinical research |
-| 🔐 **Sarah** | Cybersecurity Intelligence | Grok-code-fast | CVEs, zero-days, MITRE ATT&CK, kernel security |
+<table>
+<tr>
+<td align="center" width="25%">
 
-### Agent Architecture
+### 🌹 Rose
+![Role](https://img.shields.io/badge/SUPERVISOR-a855f7?style=flat-square&labelColor=1e1b4b)
+![Model](https://img.shields.io/badge/RouteLLM-7c3aed?style=flat-square&labelColor=1e1b4b)
+
+**Orchestration Lead**<br/>
+Task routing, quality control,<br/>workflow coordination
+
+</td>
+<td align="center" width="25%">
+
+### 🔬 Cathy
+![Role](https://img.shields.io/badge/AI_RESEARCH-3b82f6?style=flat-square&labelColor=172554)
+![Model](https://img.shields.io/badge/Gemini-2563eb?style=flat-square&labelColor=172554)
+
+**AI Specialist**<br/>
+ML papers, model releases,<br/>technology trends
+
+</td>
+<td align="center" width="25%">
+
+### 🧬 Ruthie
+![Role](https://img.shields.io/badge/MEDICAL-10b981?style=flat-square&labelColor=052e16)
+![Model](https://img.shields.io/badge/GPT--5--mini-059669?style=flat-square&labelColor=052e16)
+
+**Medical Specialist**<br/>
+PubMed, bioRxiv,<br/>clinical literature
+
+</td>
+<td align="center" width="25%">
+
+### 🔐 Sarah
+![Role](https://img.shields.io/badge/CYBERSECURITY-ef4444?style=flat-square&labelColor=450a0a)
+![Model](https://img.shields.io/badge/Grok--code--fast-dc2626?style=flat-square&labelColor=450a0a)
+
+**Security Analyst**<br/>
+CVEs, zero-days,<br/>MITRE ATT&CK
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    MISSION CONTROL                          │
-│                                                             │
-│  ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐  │
-│  │  Rose   │───▶│  Cathy  │    │ Ruthie  │    │  Sarah  │  │
-│  │ (Super) │    │  (AI)   │    │ (Med)   │    │ (Cyber) │  │
-│  └────┬────┘    └────┬────┘    └────┬────┘    └────┬────┘  │
-│       │              │              │              │        │
-│       └──────────────┴──────────────┴──────────────┘        │
-│                          │                                  │
-│                    ┌─────▼─────┐                            │
-│                    │  Database │                            │
-│                    │ PostgreSQL│                            │
-│                    └─────┬─────┘                            │
-│                          │                                  │
-│              ┌───────────┴───────────┐                      │
-│              │     Dashboard UI      │                      │
-│              │      (Next.js)        │                      │
-│              └───────────────────────┘                      │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                      🎛️  MISSION CONTROL                        │
+│                                                                 │
+│   ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐     │
+│   │  🌹     │───▶│  🔬     │    │  🧬     │    │  🔐     │     │
+│   │  Rose   │    │  Cathy  │    │  Ruthie │    │  Sarah  │     │
+│   │ (Super) │    │  (AI)   │    │  (Med)  │    │ (Cyber) │     │
+│   └────┬────┘    └────┬────┘    └────┬────┘    └────┬────┘     │
+│        │              │              │              │          │
+│        └──────────────┴──────────────┴──────────────┘          │
+│                              │                                  │
+│                    ┌─────────▼─────────┐                       │
+│                    │    PostgreSQL     │                       │
+│                    │     Database      │                       │
+│                    └─────────┬─────────┘                       │
+│                              │                                  │
+│                    ┌─────────▼─────────┐                       │
+│                    │   Next.js 14      │                       │
+│                    │   Dashboard UI    │                       │
+│                    └───────────────────┘                       │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -59,73 +118,107 @@ Reports are generated daily at 08:00 AM EST and delivered via email with full da
 ## ✨ Features
 
 ### 📊 Dashboard
-- **Real-time Agent Monitoring** — Status, tasks, and token usage per agent
-- **Token Usage Analytics** — Daily/weekly/monthly consumption charts with cost tracking
-- **Output Viewer** — Markdown-rendered research reports with full-text search
-- **Audit Logs** — Searchable, filterable system logs with CSV export
-- **Incident Management** — Token threshold violations and resolution tracking
 
-### 🔴 War Room (Cybersecurity HQ)
-- **Zero-Day Tracker** — Real-time critical vulnerability monitoring
-- **Patch Tuesday Analysis** — Microsoft security update breakdowns
-- **SANS ISC Stormcast** — Daily podcast summaries with threat intelligence
-- **Security Now Podcast** — Weekly episode tracking and analysis
-- **CVE Tables** — CVSS scores, exploit status, MITRE ATT&CK mapping
+| Feature | Description |
+|:--------|:------------|
+| **Agent Monitoring** | Real-time status, tasks, and token usage per agent |
+| **Token Analytics** | Daily/weekly/monthly charts with cost tracking |
+| **Output Viewer** | Markdown-rendered reports with full-text search |
+| **Audit Logs** | Searchable, filterable logs with CSV export |
+| **Incidents** | Token threshold violations and resolution tracking |
 
-### 📡 RSS/Atom Feeds
-- `/api/feeds/all.xml` — Combined feed from all agents
-- `/api/feeds/rose.xml` — Supervisor summaries
-- `/api/feeds/cathy.xml` — AI research updates
-- `/api/feeds/ruthie.xml` — Medical literature
-- `/api/feeds/sarah.xml` — Cybersecurity briefings
-- `/api/feeds/war-room.xml` — Security-focused feed
+### 🔴 War Room
+
+> *Sarah's Cybersecurity Operations Center*
+
+| Feature | Description |
+|:--------|:------------|
+| **Zero-Day Tracker** | Real-time critical vulnerability monitoring |
+| **Patch Tuesday** | Microsoft security update analysis |
+| **SANS Stormcast** | Daily podcast summaries + threat intel |
+| **CVE Tables** | CVSS scores, exploit status, ATT&CK mapping |
 
 ### 🔄 Deduplication System
-- **Content Hashing** — SHA-256 fingerprinting prevents duplicate reports
-- **Input Fingerprinting** — Detects when source data hasn't changed
-- **Smart Skipping** — Generates brief "No Updates" summaries (~80% token savings)
-- **Chain Prevention** — Forces fresh generation after skipped reports
 
-### ⏰ Scheduled Tasks
+| Component | Function | Savings |
+|:----------|:---------|:--------|
+| Content Hashing | SHA-256 fingerprinting | Prevents duplicates |
+| Input Fingerprinting | Source data comparison | Detects unchanged inputs |
+| Smart Skipping | Brief "No Updates" summaries | **~80% token savings** |
+
+---
+
+## 📡 RSS/Atom Feeds
+
+| Feed | URL |
+|:-----|:----|
+| 📰 All Agents | `/api/feeds/all.xml` |
+| 🌹 Rose (Supervisor) | `/api/feeds/rose.xml` |
+| 🔬 Cathy (AI) | `/api/feeds/cathy.xml` |
+| 🧬 Ruthie (Medical) | `/api/feeds/ruthie.xml` |
+| 🔐 Sarah (Cyber) | `/api/feeds/sarah.xml` |
+| 🔴 War Room | `/api/feeds/war-room.xml` |
+
+---
+
+## ⏰ Scheduled Tasks
+
 | Task | Schedule | Description |
-|------|----------|-------------|
-| Daily Research | 08:00 AM EST | Full agent workflow execution |
-| SANS Stormcast | 08:30 AM EST | Podcast fetch and summarization |
-| Patch Tuesday | 09:00 AM 2nd Wed | Microsoft security analysis |
-| GitHub Mirror | 00:30 AM EST | Code sync to repository |
+|:-----|:---------|:------------|
+| ![Daily](https://img.shields.io/badge/08:00_EST-00ffff?style=flat-square&labelColor=0f172a) **Daily Research** | Every day | Full agent workflow |
+| ![Stormcast](https://img.shields.io/badge/08:30_EST-ef4444?style=flat-square&labelColor=0f172a) **SANS Stormcast** | Every day | Podcast + threat intel |
+| ![Patch](https://img.shields.io/badge/09:00_EST-f59e0b?style=flat-square&labelColor=0f172a) **Patch Tuesday** | 2nd Wednesday | Microsoft analysis |
+| ![Mirror](https://img.shields.io/badge/00:30_EST-6b7280?style=flat-square&labelColor=0f172a) **GitHub Mirror** | Every day | Code sync |
 
 ---
 
 ## 🛠️ Tech Stack
 
+<table>
+<tr>
+<td valign="top" width="33%">
+
 ### Frontend
-- **Next.js 14** — React framework with App Router
-- **TypeScript** — Type-safe development
-- **Tailwind CSS** — Utility-first styling
-- **Framer Motion** — Smooth animations
-- **Recharts** — Data visualization
-- **Radix UI** — Accessible components
+- **Next.js 14** - App Router
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **Framer Motion** - Animations
+- **Recharts** - Visualization
+- **Radix UI** - Components
+
+</td>
+<td valign="top" width="33%">
 
 ### Backend
-- **Next.js API Routes** — RESTful endpoints with rate limiting
-- **Prisma ORM** — Database access layer
-- **PostgreSQL** — Persistent data storage
-- **Python 3.11** — Workflow orchestration
+- **Next.js API Routes** - REST
+- **Prisma ORM** - Database
+- **PostgreSQL** - Storage
+- **Python 3.11** - Workflows
+
+</td>
+<td valign="top" width="33%">
 
 ### AI/ML
-- **Abacus AI RouteLLM** — Multi-model routing
-- **Gemini** — AI research agent
-- **GPT-5-mini** — Medical research agent
-- **Grok-code-fast** — Cybersecurity agent
+- **Abacus RouteLLM** - Routing
+- **Gemini** - AI research
+- **GPT-5-mini** - Medical
+- **Grok-code-fast** - Security
+
+</td>
+</tr>
+</table>
 
 ### External Data Sources
-- **PubMed** (NCBI E-utilities API)
-- **bioRxiv/medRxiv** — Preprint servers
-- **NVD** — National Vulnerability Database
-- **CISA KEV** — Known Exploited Vulnerabilities
-- **MITRE ATT&CK** — Threat framework
-- **kernel.org vulns.git** — Linux kernel CVEs
-- **SANS ISC** — Internet Storm Center
+
+| Source | Purpose |
+|:-------|:--------|
+| **PubMed** (NCBI) | Medical literature |
+| **bioRxiv/medRxiv** | Preprints |
+| **NVD** | Vulnerability database |
+| **CISA KEV** | Exploited vulnerabilities |
+| **MITRE ATT&CK** | Threat framework |
+| **kernel.org vulns.git** | Linux kernel CVEs |
+| **SANS ISC** | Internet Storm Center |
 
 ---
 
@@ -134,7 +227,7 @@ Reports are generated daily at 08:00 AM EST and delivered via email with full da
 ```
 mission_control_dashboard/
 ├── nextjs_space/                 # Next.js application
-│   ├── app/                      # App Router pages
+│   ├── app/
 │   │   ├── api/                  # API routes
 │   │   │   ├── agents/           # Agent CRUD
 │   │   │   ├── tasks/            # Task management
@@ -142,35 +235,21 @@ mission_control_dashboard/
 │   │   │   ├── token-usage/      # Analytics
 │   │   │   ├── incidents/        # Threshold incidents
 │   │   │   ├── feeds/            # RSS/Atom feeds
-│   │   │   ├── stormcast/        # SANS ISC integration
-│   │   │   └── podcast/          # Security Now
+│   │   │   └── stormcast/        # SANS integration
 │   │   ├── agents/               # Agents page
 │   │   ├── outputs/              # Outputs page
 │   │   ├── incidents/            # Incidents page
-│   │   ├── war-room/             # Cybersecurity HQ
-│   │   ├── layout.tsx            # Root layout
-│   │   ├── page.tsx              # Dashboard home
-│   │   └── globals.css           # Global styles
+│   │   ├── war-room/             # 🔴 Cybersecurity HQ
+│   │   └── page.tsx              # Dashboard home
 │   ├── components/
 │   │   ├── dashboard/            # Dashboard components
-│   │   │   ├── agent-card.tsx
-│   │   │   ├── sidebar.tsx
-│   │   │   ├── token-usage-chart.tsx
-│   │   │   ├── log-viewer.tsx
-│   │   │   ├── markdown-renderer.tsx
-│   │   │   └── system-clock.tsx
-│   │   └── ui/                   # Reusable UI components
+│   │   └── ui/                   # Reusable UI
 │   ├── lib/
 │   │   ├── db.ts                 # Prisma client
-│   │   ├── utils.ts              # Utilities
 │   │   ├── validation.ts         # Input validation
-│   │   └── rate-limit.ts         # API rate limiting
-│   ├── prisma/
-│   │   └── schema.prisma         # Database schema
-│   ├── public/
-│   │   └── avatars/              # Agent avatars
-│   └── scripts/
-│       └── seed.ts               # Database seeding
+│   │   └── rate-limit.ts         # API protection
+│   └── prisma/
+│       └── schema.prisma         # Database schema
 ├── prompts/                      # Agent system prompts
 │   ├── rose_system_prompt.md
 │   ├── cathy_system_prompt.md
@@ -178,8 +257,7 @@ mission_control_dashboard/
 │   ├── sarah_system_prompt.md
 │   └── sarah_briefing_template.md
 ├── docs/                         # Documentation
-│   └── war_room_overview.md
-├── daily_research_workflow.py    # Main workflow orchestrator
+├── daily_research_workflow.py    # 🐍 Main orchestrator
 └── README.md
 ```
 
@@ -188,9 +266,10 @@ mission_control_dashboard/
 ## 🔌 API Endpoints
 
 ### Core APIs
+
 | Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/agents` | GET | List all agents with task counts |
+|:---------|:-------|:------------|
+| `/api/agents` | GET | List agents with task counts |
 | `/api/tasks` | GET | Filtered task list |
 | `/api/outputs` | GET | Paginated agent outputs |
 | `/api/token-usage` | GET | Token analytics by period |
@@ -198,79 +277,46 @@ mission_control_dashboard/
 | `/api/logs` | GET | Audit log retrieval |
 
 ### Specialized APIs
+
 | Endpoint | Method | Description |
-|----------|--------|-------------|
+|:---------|:-------|:------------|
 | `/api/stormcast` | GET | SANS ISC episodes |
 | `/api/podcast` | GET | Security Now episodes |
 | `/api/feeds/[feed].xml` | GET | RSS/Atom feeds |
 
-### Security Features
-- **Rate Limiting** — Prevents abuse (standard: 100 req/min, write: 20 req/min)
-- **Input Validation** — UUID, bounds checking, type validation
-- **Sanitization** — String truncation, array limits
+### Security
+
+| Protection | Implementation |
+|:-----------|:---------------|
+| **Rate Limiting** | 100 req/min (read), 20 req/min (write) |
+| **Input Validation** | UUID, bounds, type checking |
+| **SQL Injection** | Prisma parameterized queries |
+| **XSS Prevention** | React auto-escaping + sanitization |
 
 ---
 
-## 📈 Database Schema
+## 📈 Token Economics
 
-```prisma
-model Agent {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  role      String
-  appId     String
-  status    String   @default("active")
-  tasks     Task[]
-  outputs   Output[]
-}
-
-model Output {
-  id          String   @id @default(uuid())
-  content     String
-  summary     String?
-  contentHash String?  // SHA-256 deduplication
-  inputHash   String?  // Input fingerprint
-  wasSkipped  Boolean  @default(false)
-  agent       Agent    @relation(...)
-  task        Task     @relation(...)
-}
-
-model TokenUsage {
-  id         String   @id @default(uuid())
-  tokensUsed Int
-  cost       Float
-  agent      Agent    @relation(...)
-}
-
-model ThresholdIncident {
-  id              String   @id @default(uuid())
-  incidentType    String
-  thresholdLimit  Int
-  actualValue     Int
-  resolved        Boolean  @default(false)
-}
-
-model SansStormcast {
-  id          String   @id @default(uuid())
-  episodeDate DateTime @unique
-  title       String
-  audioUrl    String?
-  summary     String?
-  topics      String[]
-}
-```
+| Scenario | Tokens | Est. Cost |
+|:---------|:-------|:----------|
+| Full daily run (all agents) | ~9,000-12,000 | ~$0.08-0.12 |
+| Single agent report | ~1,500-2,500 | ~$0.02-0.03 |
+| Deduplicated (skipped) | ~100-200 | ~$0.001 |
+| **Dedup savings** | **~80-90%** | — |
 
 ---
 
 ## 🚀 Deployment
 
-This project is deployed on **Abacus AI** infrastructure:
-
-- **Dashboard**: [https://rose.abacusai.app](https://rose.abacusai.app)
-- **Database**: PostgreSQL (managed)
-- **Scheduled Tasks**: Abacus AI Task Manager
+| Component | Service |
+|:----------|:--------|
+| **Dashboard** | [rose.abacusai.app](https://rose.abacusai.app) |
+| **Database** | PostgreSQL (managed) |
+| **Tasks** | Abacus AI Scheduler |
+| **Mirror** | GitHub (nightly sync) |
 
 ### Environment Variables
+
 ```env
 DATABASE_URL="postgresql://..."
 NEXTAUTH_SECRET="..."
@@ -279,37 +325,26 @@ ABACUSAI_API_KEY="..."
 
 ---
 
-## 📊 Token Economics
+## 🔒 Security
 
-| Scenario | Tokens | Est. Cost |
-|----------|--------|----------|
-| Full daily run (all agents) | ~9,000-12,000 | ~$0.08-0.12 |
-| Single agent report | ~1,500-2,500 | ~$0.02-0.03 |
-| Deduplicated (skipped) | ~100-200 | ~$0.001 |
-| **Dedup savings** | **~80-90%** | — |
-
----
-
-## 🔒 Security Considerations
-
-- **No secrets in repo** — `.env` excluded from sync
-- **Rate limiting** — All endpoints protected
-- **Input validation** — UUIDs, bounds, types checked
-- **SQL injection prevention** — Prisma parameterized queries
-- **XSS prevention** — React auto-escaping + sanitization
+- ✅ **No secrets in repo** — `.env` excluded
+- ✅ **Rate limiting** — All endpoints protected
+- ✅ **Input validation** — UUIDs, bounds, types
+- ✅ **SQL injection prevention** — Parameterized queries
+- ✅ **XSS prevention** — Auto-escaping + sanitization
 
 ---
+
+<div align="center">
 
 ## 📜 License
 
-This project is proprietary. Code is mirrored for backup purposes.
+**Proprietary** — Code mirrored for backup purposes
 
 ---
 
-## 👤 Author
+Built with [Abacus AI DeepAgent](https://abacus.ai)
 
-Built with [Abacus AI DeepAgent](https://abacus.ai) — Multi-Agent Orchestration Platform
+![Sync](https://img.shields.io/badge/LAST_SYNC-MARCH_2026-0f172a?style=flat-square&labelColor=00ffff)
 
----
-
-*Last synced: March 2026*
+</div>
