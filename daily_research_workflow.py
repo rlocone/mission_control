@@ -1128,18 +1128,115 @@ class AgentOrchestrator:
         }
 
 
+# Lock file for preventing concurrent runs
+WORKFLOW_LOCK_FILE = "/tmp/mission_control_workflow.lock"
+LOCK_TIMEOUT_MINUTES = 10  # Lock expires after this time
+CONCURRENT_RUN_WINDOW_MINUTES = 5  # Block runs if another started within this window
+
+
+def acquire_workflow_lock() -> bool:
+    """
+    Acquire a lock to prevent concurrent workflow runs.
+    Returns True if lock acquired, False if another run is in progress.
+    """
+    try:
+        now = time.time()
+        
+        # Check if lock file exists and is still valid
+        if os.path.exists(WORKFLOW_LOCK_FILE):
+            with open(WORKFLOW_LOCK_FILE, 'r') as f:
+                lock_data = json.load(f)
+                lock_time = lock_data.get('timestamp', 0)
+                lock_pid = lock_data.get('pid', 0)
+                
+                # Check if lock is expired
+                lock_age_minutes = (now - lock_time) / 60
+                if lock_age_minutes < LOCK_TIMEOUT_MINUTES:
+                    # Check if the process is still running
+                    try:
+                        os.kill(lock_pid, 0)  # Check if process exists
+                        logger.warning(f"🔒 Workflow lock held by PID {lock_pid} (age: {lock_age_minutes:.1f}m)")
+                        return False
+                    except OSError:
+                        # Process no longer exists, lock is stale
+                        logger.info(f"🔓 Stale lock from dead process {lock_pid} - removing")
+        
+        # Create/update lock file
+        with open(WORKFLOW_LOCK_FILE, 'w') as f:
+            json.dump({
+                'timestamp': now,
+                'pid': os.getpid(),
+                'started_at': datetime.now().isoformat()
+            }, f)
+        
+        logger.info(f"🔒 Acquired workflow lock (PID: {os.getpid()})")
+        return True
+    
+    except Exception as e:
+        logger.error(f"Error acquiring lock: {e}")
+        return True  # Allow on error
+
+
+def release_workflow_lock():
+    """Release the workflow lock."""
+    try:
+        if os.path.exists(WORKFLOW_LOCK_FILE):
+            with open(WORKFLOW_LOCK_FILE, 'r') as f:
+                lock_data = json.load(f)
+                # Only remove if we own the lock
+                if lock_data.get('pid') == os.getpid():
+                    os.remove(WORKFLOW_LOCK_FILE)
+                    logger.info("🔓 Released workflow lock")
+    except Exception as e:
+        logger.error(f"Error releasing lock: {e}")
+
+
 def check_workflow_already_ran_today(db: 'DatabaseManager') -> Dict[str, Any]:
     """
     Check if the daily workflow has already completed successfully today.
-    Prevents duplicate runs by checking for existing outputs from all agents.
+    Prevents duplicate runs by checking:
+    1. Lock file for concurrent runs
+    2. Any outputs created within the last few minutes (concurrent run protection)
+    3. All 4 agents having outputs today (completed run protection)
     
     Returns:
         Dict with 'already_ran' (bool), 'agent_outputs' (dict), and 'message' (str)
     """
     try:
-        today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        now = datetime.now()
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        recent_window = now - timedelta(minutes=CONCURRENT_RUN_WINDOW_MINUTES)
         
-        # Check for outputs from each agent today
+        # =====================================================================
+        # CHECK 1: Recent outputs (concurrent run protection)
+        # If any agent has output in last 5 minutes, another run is in progress
+        # =====================================================================
+        db.cursor.execute(
+            """SELECT a.name, o.created_at, t.task_name
+               FROM outputs o
+               JOIN agents a ON o.agent_id = a.id
+               JOIN tasks t ON o.task_id = t.id
+               WHERE o.created_at >= %s
+               AND t.task_name IN ('Daily AI Research Report', 'Daily Medical Research Report', 
+                                   'Daily Cyber Briefing', 'Daily Research Compilation and Insights')
+               ORDER BY o.created_at DESC
+               LIMIT 1""",
+            (recent_window,)
+        )
+        recent_output = db.cursor.fetchone()
+        
+        if recent_output:
+            return {
+                'already_ran': True,
+                'agent_outputs': {recent_output['name']: {'created_at': recent_output['created_at'].isoformat()}},
+                'message': f"🚫 Concurrent run detected - {recent_output['name']} generated output {(now - recent_output['created_at']).seconds}s ago",
+                'output_ids': [],
+                'reason': 'concurrent_run'
+            }
+        
+        # =====================================================================
+        # CHECK 2: Full completion check (all 4 agents today)
+        # =====================================================================
         agent_outputs = {}
         required_agents = ['Cathy', 'Ruthie', 'Sarah', 'Rose']
         
@@ -1184,7 +1281,8 @@ def check_workflow_already_ran_today(db: 'DatabaseManager') -> Dict[str, Any]:
             'already_ran': all_ran,
             'agent_outputs': agent_outputs,
             'message': message,
-            'output_ids': [info['output_id'] for info in agent_outputs.values()]
+            'output_ids': [info['output_id'] for info in agent_outputs.values()],
+            'reason': 'completed_today' if all_ran else 'partial'
         }
     
     except Exception as e:
@@ -1194,8 +1292,47 @@ def check_workflow_already_ran_today(db: 'DatabaseManager') -> Dict[str, Any]:
             'already_ran': False,
             'agent_outputs': {},
             'message': f"Error checking duplicate: {str(e)}",
-            'output_ids': []
+            'output_ids': [],
+            'reason': 'error'
         }
+
+
+def check_email_already_sent_today(db: 'DatabaseManager', hours_window: int = 1) -> bool:
+    """
+    Check if a daily report email was already sent within the time window.
+    Prevents duplicate email sends.
+    
+    Args:
+        db: Database manager
+        hours_window: Number of hours to check for recent emails
+    
+    Returns:
+        True if email was already sent recently, False otherwise
+    """
+    try:
+        window_start = datetime.now() - timedelta(hours=hours_window)
+        
+        db.cursor.execute(
+            """SELECT id, created_at, message 
+               FROM audit_logs 
+               WHERE log_level = 'INFO' 
+               AND message LIKE '%Email sent successfully%'
+               AND created_at >= %s
+               ORDER BY created_at DESC
+               LIMIT 1""",
+            (window_start,)
+        )
+        recent_email = db.cursor.fetchone()
+        
+        if recent_email:
+            logger.warning(f"📧 Email already sent at {recent_email['created_at']} - skipping duplicate")
+            return True
+        
+        return False
+    
+    except Exception as e:
+        logger.error(f"Error checking for duplicate email: {e}")
+        return False  # Allow on error
 
 
 def send_report_email(output_ids: List[str], recipient_email: str = None) -> Dict[str, Any]:
@@ -1276,6 +1413,20 @@ def run_daily_workflow():
             logger.info(f"  • {agent_name}: {model}")
     logger.info("=" * 60)
     
+    # =====================================================================
+    # LOCK ACQUISITION: Prevent concurrent runs
+    # =====================================================================
+    if not acquire_workflow_lock():
+        logger.warning("=" * 60)
+        logger.warning("🔒 CONCURRENT RUN BLOCKED - Another workflow is in progress")
+        logger.warning("=" * 60)
+        return {
+            "success": True,
+            "skipped": True,
+            "reason": "concurrent_lock",
+            "message": "Another workflow instance is already running"
+        }
+    
     db = DatabaseManager(DATABASE_URL)
     
     try:
@@ -1304,6 +1455,7 @@ def run_daily_workflow():
                     })
             
             db.close()
+            release_workflow_lock()  # Release lock on early exit
             return {
                 "success": True,
                 "skipped": True,
@@ -1918,26 +2070,31 @@ IMPORTANT: Only include URLs that are verified working. Do not invent or guess U
             logger.info("-" * 40)
             logger.info("Step 5: Sending Email Notification with Daily Reports")
             
-            # Collect output IDs from successful reports
-            output_ids = []
-            for result in [cathy_result, ruthie_result, sarah_result, rose_result]:
-                if result.get('success') and result.get('output_id'):
-                    output_ids.append(result['output_id'])
-            
-            if output_ids:
-                email_result = send_report_email(output_ids, REPORT_EMAIL_RECIPIENT)
-                
-                # Log email status
-                if email_result.get('success'):
-                    db.log_activity(rose_agent_id, None, 'INFO',
-                        f"Daily reports email sent to {REPORT_EMAIL_RECIPIENT}",
-                        {"reports_count": len(output_ids), "recipient": REPORT_EMAIL_RECIPIENT})
-                else:
-                    db.log_activity(rose_agent_id, None, 'WARN',
-                        f"Failed to send daily reports email: {email_result.get('error', 'Unknown error')}",
-                        {"reports_count": len(output_ids), "recipient": REPORT_EMAIL_RECIPIENT})
+            # Check if email was already sent recently (prevent duplicate emails)
+            if check_email_already_sent_today(db, hours_window=1):
+                logger.warning("📧 EMAIL DEDUP: Skipping - email already sent within the last hour")
+                email_result = {"success": True, "skipped": True, "message": "Email already sent recently"}
             else:
-                logger.warning("📧 No output IDs collected for email")
+                # Collect output IDs from successful reports
+                output_ids = []
+                for result in [cathy_result, ruthie_result, sarah_result, rose_result]:
+                    if result.get('success') and result.get('output_id'):
+                        output_ids.append(result['output_id'])
+                
+                if output_ids:
+                    email_result = send_report_email(output_ids, REPORT_EMAIL_RECIPIENT)
+                    
+                    # Log email status
+                    if email_result.get('success'):
+                        db.log_activity(rose_agent_id, None, 'INFO',
+                            f"Email sent successfully to {REPORT_EMAIL_RECIPIENT}",
+                            {"reports_count": len(output_ids), "recipient": REPORT_EMAIL_RECIPIENT})
+                    else:
+                        db.log_activity(rose_agent_id, None, 'WARN',
+                            f"Failed to send daily reports email: {email_result.get('error', 'Unknown error')}",
+                            {"reports_count": len(output_ids), "recipient": REPORT_EMAIL_RECIPIENT})
+                else:
+                    logger.warning("📧 No output IDs collected for email")
         else:
             logger.warning("📧 Skipping email - workflow did not complete successfully")
         
@@ -1976,6 +2133,7 @@ IMPORTANT: Only include URLs that are verified working. Do not invent or guess U
         
     finally:
         db.close()
+        release_workflow_lock()  # Always release the lock when workflow ends
 
 
 # ============================================================================
