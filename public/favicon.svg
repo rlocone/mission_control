@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <rect width="256" height="256" fill="#0a1628"/>
+  <circle cx="128" cy="128" r="24" fill="#00d9ff" opacity="0.9"/>
+  <circle cx="64" cy="80" r="16" fill="#1e3a8a"/>
+  <circle cx="192" cy="80" r="16" fill="#1e3a8a"/>
+  <circle cx="64" cy="176" r="16" fill="#1e3a8a"/>
+  <circle cx="192" cy="176" r="16" fill="#1e3a8a"/>
+  <circle cx="40" cy="128" r="12" fill="#0ea5e9"/>
+  <circle cx="216" cy="128" r="12" fill="#0ea5e9"/>
+  <circle cx="128" cy="40" r="12" fill="#0ea5e9"/>
+  <circle cx="128" cy="216" r="12" fill="#0ea5e9"/>
+  <line x1="128" y1="104" x2="64" y2="80" stroke="#00d9ff" stroke-width="2" opacity="0.6"/>
+  <line x1="128" y1="104" x2="192" y2="80" stroke="#00d9ff" stroke-width="2" opacity="0.6"/>
+  <line x1="128" y1="152" x2="64" y2="176" stroke="#00d9ff" stroke-width="2" opacity="0.6"/>
+  <line x1="128" y1="152" x2="192" y2="176" stroke="#00d9ff" stroke-width="2" opacity="0.6"/>
+  <line x1="104" y1="128" x2="40" y2="128" stroke="#0ea5e9" stroke-width="2" opacity="0.5"/>
+  <line x1="152" y1="128" x2="216" y2="128" stroke="#0ea5e9" stroke-width="2" opacity="0.5"/>
+  <line x1="128" y1="104" x2="128" y2="40" stroke="#0ea5e9" stroke-width="2" opacity="0.5"/>
+  <line x1="128" y1="152" x2="128" y2="216" stroke="#0ea5e9" stroke-width="2" opacity="0.5"/>
+  <circle cx="128" cy="128" r="18" fill="none" stroke="#00d9ff" stroke-width="2"/>
+  <circle cx="128" cy="128" r="12" fill="none" stroke="#00d9ff" stroke-width="1.5" opacity="0.4"/>
+</svg>

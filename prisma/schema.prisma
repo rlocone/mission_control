@@ -1,0 +1,174 @@
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    output = "/home/ubuntu/mission_control_dashboard/nextjs_space/node_modules/.prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Agent {
+  id                  String              @id @default(uuid())
+  name                String
+  role                String
+  appId               String              @unique @map("app_id")
+  status              AgentStatus         @default(ACTIVE)
+  createdAt           DateTime            @default(now()) @map("created_at")
+  tasks               Task[]
+  logs                Log[]
+  outputs             Output[]
+  tokenUsage          TokenUsage[]
+  thresholdIncidents  ThresholdIncident[]
+
+  @@map("agents")
+}
+
+enum AgentStatus {
+  ACTIVE
+  INACTIVE
+  BUSY
+}
+
+model Task {
+  id          String      @id @default(uuid())
+  agentId     String      @map("agent_id")
+  taskName    String      @map("task_name")
+  description String?
+  status      TaskStatus  @default(PENDING)
+  assignedAt  DateTime    @default(now()) @map("assigned_at")
+  completedAt DateTime?   @map("completed_at")
+  output      String?
+  agent       Agent       @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  logs        Log[]
+  outputs     Output[]
+  tokenUsage  TokenUsage[]
+
+  @@map("tasks")
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+model Log {
+  id        String    @id @default(uuid())
+  agentId   String    @map("agent_id")
+  taskId    String?   @map("task_id")
+  logLevel  LogLevel  @default(INFO) @map("log_level")
+  message   String
+  timestamp DateTime  @default(now())
+  metadata  Json?
+  agent     Agent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  task      Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@map("logs")
+}
+
+enum LogLevel {
+  DEBUG
+  INFO
+  WARN
+  ERROR
+}
+
+model Output {
+  id           String   @id @default(uuid())
+  taskId       String   @map("task_id")
+  agentId      String   @map("agent_id")
+  content      String
+  summary      String?
+  contentHash  String?  @map("content_hash")  // SHA-256 hash for deduplication
+  inputHash    String?  @map("input_hash")    // Hash of input data sources
+  wasSkipped   Boolean  @default(false) @map("was_skipped")  // True if report was deduplicated
+  createdAt    DateTime @default(now()) @map("created_at")
+  task         Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  agent        Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@map("outputs")
+}
+
+model TokenUsage {
+  id         String   @id @default(uuid())
+  agentId    String   @map("agent_id")
+  taskId     String?  @map("task_id")
+  tokensUsed Int      @map("tokens_used")
+  timestamp  DateTime @default(now())
+  cost       Float    @default(0)
+  agent      Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  task       Task?    @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@map("token_usage")
+}
+
+// Rose's Token Threshold Incident Reports
+model ThresholdIncident {
+  id                 String           @id @default(uuid())
+  incidentType       IncidentType     @map("incident_type")
+  triggeringAgentId  String           @map("triggering_agent_id")
+  triggeringTaskId   String?          @map("triggering_task_id")
+  triggeringTaskName String?          @map("triggering_task_name")
+  thresholdName      String           @map("threshold_name")
+  thresholdLimit     Int              @map("threshold_limit")
+  actualValue        Int              @map("actual_value")
+  tokensAtIncident   Int              @map("tokens_at_incident")
+  dailyUsageAtTime   Int              @map("daily_usage_at_time")
+  burnRateAtTime     Float            @map("burn_rate_at_time")
+  stopReason         String           @map("stop_reason")
+  workflowHalted     Boolean          @default(true) @map("workflow_halted")
+  agentsAffected     String[]         @map("agents_affected")
+  tasksSkipped       String[]         @map("tasks_skipped")
+  resolution         String?
+  resolvedAt         DateTime?        @map("resolved_at")
+  timestamp          DateTime         @default(now())
+  thresholds         Json             // Snapshot of all thresholds at incident time
+  
+  triggeringAgent    Agent            @relation(fields: [triggeringAgentId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_incidents")
+}
+
+enum IncidentType {
+  TASK_LIMIT_EXCEEDED
+  RUN_LIMIT_EXCEEDED
+  DAILY_LIMIT_EXCEEDED
+  BURN_RATE_EXCEEDED
+}
+
+// Security Now Podcast Episodes (Sarah's Wednesday task)
+model PodcastEpisode {
+  id              String   @id @default(uuid())
+  episodeNumber   Int      @unique @map("episode_number")
+  title           String
+  airDate         DateTime @map("air_date")
+  audioUrl        String?  @map("audio_url")
+  showNotesUrl    String?  @map("show_notes_url")
+  showNotesPdfUrl String?  @map("show_notes_pdf_url")
+  summary         String?  @db.Text
+  twitVerified    Boolean  @default(false) @map("twit_verified")
+  grcVerified     Boolean  @default(false) @map("grc_verified")
+  processedAt     DateTime @default(now()) @map("processed_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("podcast_episodes")
+}
+
+// SANS ISC Daily Stormcast Episodes (Sarah's daily 08:30 task)
+model SansStormcast {
+  id            String   @id @default(uuid())
+  episodeDate   DateTime @unique @map("episode_date")
+  title         String
+  audioUrl      String?  @map("audio_url")
+  duration      String?  // e.g. "5:30"
+  description   String?  @db.Text
+  summary       String?  @db.Text
+  topics        String[] // Array of topic keywords
+  processedAt   DateTime @default(now()) @map("processed_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("sans_stormcast")
+}
