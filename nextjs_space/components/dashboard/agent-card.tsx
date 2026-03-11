@@ -61,58 +61,59 @@ export function AgentCard({ agent, index }: AgentCardProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${gradientClass} backdrop-blur-sm border border-white/10 p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]`}
+      className={`relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br ${gradientClass} backdrop-blur-sm border border-white/10 p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]`}
     >
-      <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
       
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="relative w-14 h-14 rounded-xl overflow-hidden ring-2 ring-white/20 shadow-lg">
+      {/* Mobile: Stack status below name, Desktop: Side by side */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-0 mb-3 sm:mb-4">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl overflow-hidden ring-2 ring-white/20 shadow-lg flex-shrink-0">
             <Image
               src={avatar}
               alt={`${agent?.name ?? "Agent"} avatar`}
               fill
               className="object-cover"
-              sizes="56px"
+              sizes="(max-width: 640px) 40px, 56px"
             />
           </div>
-          <div>
-            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              {agent?.name ?? "Unknown"}
-              <span className="text-lg">{emoji}</span>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-base sm:text-xl font-bold text-white flex items-center gap-1 sm:gap-2">
+              <span className="truncate">{agent?.name ?? "Unknown"}</span>
+              <span className="text-sm sm:text-lg flex-shrink-0">{emoji}</span>
             </h3>
-            <p className="text-sm text-gray-400 max-w-[180px] truncate">{agent?.role ?? "No role"}</p>
+            <p className="text-xs sm:text-sm text-gray-400 truncate">{agent?.role ?? "No role"}</p>
           </div>
         </div>
-        <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${status.bg}`}>
-          <span className={`w-2 h-2 rounded-full ${status.dot} animate-pulse`} />
-          <span className={`text-xs font-medium ${status.text}`}>{agent?.status ?? "UNKNOWN"}</span>
+        <div className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 rounded-full ${status.bg} w-fit flex-shrink-0`}>
+          <span className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full ${status.dot} animate-pulse`} />
+          <span className={`text-[10px] sm:text-xs font-medium ${status.text}`}>{agent?.status ?? "UNKNOWN"}</span>
         </div>
       </div>
 
-      <div className="text-xs text-gray-500 mb-4 font-mono">App ID: {agent?.appId ?? "N/A"}</div>
+      <div className="text-[10px] sm:text-xs text-gray-500 mb-3 sm:mb-4 font-mono truncate">App ID: {agent?.appId ?? "N/A"}</div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white/5 rounded-xl p-3 text-center">
-          <div className="flex items-center justify-center gap-1 text-emerald-400 mb-1">
-            <CheckCircle className="w-4 h-4" />
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <div className="bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 text-center">
+          <div className="flex items-center justify-center gap-1 text-emerald-400 mb-0.5 sm:mb-1">
+            <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
           </div>
-          <div className="text-2xl font-bold text-white">{agent?.completedTasks ?? 0}</div>
-          <div className="text-xs text-gray-500">Completed</div>
+          <div className="text-lg sm:text-2xl font-bold text-white">{agent?.completedTasks ?? 0}</div>
+          <div className="text-[10px] sm:text-xs text-gray-500">Done</div>
         </div>
-        <div className="bg-white/5 rounded-xl p-3 text-center">
-          <div className="flex items-center justify-center gap-1 text-amber-400 mb-1">
-            <Loader2 className="w-4 h-4" />
+        <div className="bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 text-center">
+          <div className="flex items-center justify-center gap-1 text-amber-400 mb-0.5 sm:mb-1">
+            <Loader2 className="w-3 h-3 sm:w-4 sm:h-4" />
           </div>
-          <div className="text-2xl font-bold text-white">{inProgressTasks}</div>
-          <div className="text-xs text-gray-500">In Progress</div>
+          <div className="text-lg sm:text-2xl font-bold text-white">{inProgressTasks}</div>
+          <div className="text-[10px] sm:text-xs text-gray-500">Active</div>
         </div>
-        <div className="bg-white/5 rounded-xl p-3 text-center">
-          <div className="flex items-center justify-center gap-1 text-blue-400 mb-1">
-            <Clock className="w-4 h-4" />
+        <div className="bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 text-center">
+          <div className="flex items-center justify-center gap-1 text-blue-400 mb-0.5 sm:mb-1">
+            <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
           </div>
-          <div className="text-2xl font-bold text-white">{pendingTasks}</div>
-          <div className="text-xs text-gray-500">Pending</div>
+          <div className="text-lg sm:text-2xl font-bold text-white">{pendingTasks}</div>
+          <div className="text-[10px] sm:text-xs text-gray-500">Queue</div>
         </div>
       </div>
     </motion.div>

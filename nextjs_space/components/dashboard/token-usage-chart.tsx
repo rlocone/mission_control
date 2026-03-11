@@ -29,6 +29,14 @@ export function TokenUsageChart() {
   const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("weekly");
   const [data, setData] = useState<TokenUsageData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -85,43 +93,43 @@ export function TokenUsageChart() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
         {(data?.totalsByAgent ?? []).map((agent, index) => (
           <motion.div
             key={agent?.agentId ?? index}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.1 }}
-            className="bg-slate-800/50 rounded-xl border border-white/5 p-4"
+            className="bg-slate-800/50 rounded-lg sm:rounded-xl border border-white/5 p-2.5 sm:p-4"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-400">{agent?.agentName ?? "Unknown"}</span>
+            <div className="flex items-center justify-between mb-1 sm:mb-2">
+              <span className="text-xs sm:text-sm text-gray-400 truncate">{agent?.agentName ?? "Unknown"}</span>
               <div
-                className="w-3 h-3 rounded-full"
+                className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0"
                 style={{ backgroundColor: agentColors[agent?.agentName ?? ""] ?? "#6b7280" }}
               />
             </div>
-            <div className="text-2xl font-bold text-white">
+            <div className="text-lg sm:text-2xl font-bold text-white">
               {(agent?.totalTokens ?? 0).toLocaleString()}
             </div>
-            <div className="text-xs text-gray-500">
-              ${(agent?.totalCost ?? 0).toFixed(4)} total cost
+            <div className="text-[10px] sm:text-xs text-gray-500">
+              ${(agent?.totalCost ?? 0).toFixed(4)}
             </div>
           </motion.div>
         ))}
       </div>
 
-      <div className="bg-slate-800/50 rounded-xl border border-white/5 p-6">
+      <div className="bg-slate-800/50 rounded-lg sm:rounded-xl border border-white/5 p-3 sm:p-4 md:p-6">
         {loading ? (
-          <div className="h-[300px] flex items-center justify-center text-gray-500">
+          <div className="h-[200px] sm:h-[300px] flex items-center justify-center text-gray-500 text-sm">
             Loading chart...
           </div>
         ) : (data?.chartData ?? []).length === 0 ? (
-          <div className="h-[300px] flex items-center justify-center text-gray-500">
+          <div className="h-[200px] sm:h-[300px] flex items-center justify-center text-gray-500 text-sm">
             No data available for the selected period
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={isMobile ? 200 : 300}>
             <AreaChart data={data?.chartData ?? []}>
               <defs>
                 <linearGradient id="colorRose" x1="0" y1="0" x2="0" y2="1">

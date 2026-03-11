@@ -148,10 +148,10 @@ export function Sidebar() {
       {/* Mobile hamburger button */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="fixed top-4 left-4 z-50 p-2 rounded-xl bg-slate-800/90 backdrop-blur border border-white/10 text-white md:hidden"
+        className="fixed top-3 left-3 z-50 p-2 rounded-lg bg-slate-800/95 backdrop-blur-sm border border-white/10 text-white shadow-lg md:hidden active:scale-95 transition-transform"
         aria-label="Open menu"
       >
-        <Menu className="w-6 h-6" />
+        <Menu className="w-5 h-5" />
       </button>
 
       {/* Mobile drawer overlay */}

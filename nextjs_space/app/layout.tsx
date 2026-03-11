@@ -43,7 +43,7 @@ export default function RootLayout({
       <body className={`${inter.className} bg-slate-950 text-white antialiased`}>
         <div className="flex min-h-screen">
           <Sidebar />
-          <main className="flex-1 ml-0 md:ml-[80px] lg:ml-[256px] p-4 pt-16 md:pt-4 md:p-6 lg:p-8 transition-all">
+          <main className="flex-1 w-full ml-0 md:ml-[80px] lg:ml-[256px] px-3 py-4 pt-14 sm:px-4 sm:pt-16 md:pt-6 md:px-6 lg:px-8 lg:py-8 transition-all overflow-x-hidden">
             {children}
           </main>
         </div>

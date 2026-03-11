@@ -47,7 +47,7 @@ export function TaskList({ tasks }: TaskListProps) {
   const [expandedTask, setExpandedTask] = useState<string | null>(null);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2 sm:space-y-3">
       {(tasks ?? []).map((task, index) => {
         const config = statusConfig[task?.status ?? "PENDING"] ?? statusConfig.PENDING;
         const isExpanded = expandedTask === task?.id;
@@ -58,24 +58,24 @@ export function TaskList({ tasks }: TaskListProps) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
-            className="bg-slate-800/50 rounded-xl border border-white/5 overflow-hidden"
+            className="bg-slate-800/50 rounded-lg sm:rounded-xl border border-white/5 overflow-hidden"
           >
             <div
-              className="p-4 cursor-pointer hover:bg-white/5 transition-colors"
+              className="p-3 sm:p-4 cursor-pointer hover:bg-white/5 transition-colors"
               onClick={() => setExpandedTask(isExpanded ? null : (task?.id ?? null))}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${config.bg} ${config.color}`}>
+              <div className="flex items-start sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                  <div className={`p-1.5 sm:p-2 rounded-md sm:rounded-lg ${config.bg} ${config.color} flex-shrink-0`}>
                     {config.icon}
                   </div>
-                  <div>
-                    <h4 className="font-medium text-white">{task?.taskName ?? "Untitled Task"}</h4>
-                    <p className="text-sm text-gray-500">{task?.agent?.name ?? "Unknown Agent"}</p>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-medium text-white text-sm sm:text-base truncate">{task?.taskName ?? "Untitled Task"}</h4>
+                    <p className="text-xs sm:text-sm text-gray-500 truncate">{task?.agent?.name ?? "Unknown Agent"}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-gray-500">
+                <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                  <span className="text-[10px] sm:text-xs text-gray-500 hidden sm:inline">
                     {task?.assignedAt ? formatDistanceToNow(new Date(task.assignedAt), { addSuffix: true }) : "Unknown"}
                   </span>
                   {isExpanded ? (
