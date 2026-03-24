@@ -144,6 +144,10 @@ export function TokenUsageChart() {
                   <stop offset="5%" stopColor="#a855f7" stopOpacity={0.3} />
                   <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
                 </linearGradient>
+                <linearGradient id="colorSarah" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                </linearGradient>
               </defs>
               <XAxis
                 dataKey="date"
@@ -196,6 +200,14 @@ export function TokenUsageChart() {
                 stroke="#a855f7"
                 fillOpacity={1}
                 fill="url(#colorRuthie)"
+                strokeWidth={2}
+              />
+              <Area
+                type="monotone"
+                dataKey="Sarah"
+                stroke="#ef4444"
+                fillOpacity={1}
+                fill="url(#colorSarah)"
                 strokeWidth={2}
               />
             </AreaChart>

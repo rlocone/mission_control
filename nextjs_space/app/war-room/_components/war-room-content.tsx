@@ -637,7 +637,7 @@ export function WarRoomContent() {
               <a href="https://nvd.nist.gov/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white underline">NVD</a>,{" "}
               <a href="https://googleprojectzero.blogspot.com/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white underline">Google Project Zero</a>,{" "}
               <a href="https://threatresearch.ext.hp.com/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white underline">HP ThreatResearch</a>,{" "}
-              <a href="https://ciq.co/security/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white underline">CIQ</a>,{" "}
+              <a href="https://ciq.com/blog/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white underline">CIQ</a>,{" "}
               <a href="https://vulncheck.com/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white underline">VulnCheck</a>,{" "}
               <a href="https://www.infosecurity-magazine.com/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white underline">Infosecurity Magazine</a>
             </p>
@@ -707,7 +707,7 @@ export function WarRoomContent() {
 
                     {/* Summary or preview */}
                     <p className="text-sm text-gray-400 mb-3">
-                      {output?.summary ?? stripMarkdown(output?.content ?? "", 200)}
+                      {stripMarkdown(output?.summary ?? output?.content ?? "", 200)}
                     </p>
 
                     {/* Expandable content */}

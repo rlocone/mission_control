@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ListTodo, Activity, CheckCircle, Clock, Loader2, AlertTriangle, Filter } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { MarkdownRenderer } from "@/components/dashboard/markdown-renderer";
+import { stripMarkdown } from "@/lib/utils";
 
 interface Task {
   id: string;
@@ -165,13 +167,15 @@ export function TasksPageContent() {
                 </div>
 
                 {task?.description && (
-                  <p className="text-gray-400 text-sm mb-4">{task.description}</p>
+                  <p className="text-gray-400 text-sm mb-4">{stripMarkdown(task.description, 500)}</p>
                 )}
 
                 {task?.output && (
                   <div className="bg-slate-800/50 rounded-lg p-4 mb-4">
                     <span className="text-xs text-gray-500 uppercase block mb-2">Output</span>
-                    <p className="text-gray-300 text-sm">{task.output}</p>
+                    <div className="text-gray-300 text-sm max-h-[400px] overflow-y-auto">
+                      <MarkdownRenderer content={task.output} />
+                    </div>
                   </div>
                 )}
 

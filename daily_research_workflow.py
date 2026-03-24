@@ -45,34 +45,67 @@ def validate_url(url: str, timeout: int = 5) -> Dict[str, Any]:
     """
     Validate a single URL by making a HEAD request.
     Returns status info including success, status code, and any errors.
+    
+    Status codes 403 (Forbidden) are treated as soft-valid since many sites
+    block automated requests (bot protection) but the URL itself is live.
+    Only 404, 410, 5xx, timeouts, and connection errors are considered broken.
     """
+    # Domains known to block automated requests — treat as valid
+    BOT_PROTECTED_DOMAINS = [
+        'pubmed.ncbi.nlm.nih.gov', 'arxiv.org', 'biorxiv.org',
+        'nature.com', 'science.org', 'ieee.org', 'acm.org',
+        'springer.com', 'wiley.com', 'elsevier.com',
+        'un.org', 'who.int', 'fda.gov',
+    ]
+    
     try:
-        # Use HEAD request for efficiency (don't download full content)
+        from urllib.parse import urlparse
+        domain = urlparse(url).netloc.lower()
+        
+        # Use a realistic browser User-Agent to reduce false 403s
         headers = {
-            'User-Agent': 'Mozilla/5.0 (compatible; MissionControl/1.0; URL validator)'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
         }
         response = requests.head(url, timeout=timeout, allow_redirects=True, headers=headers)
         
         # Some servers don't support HEAD, try GET if HEAD fails
-        if response.status_code == 405:
+        if response.status_code in (405, 403):
             response = requests.get(url, timeout=timeout, allow_redirects=True, headers=headers, stream=True)
             response.close()
         
+        status = response.status_code
+        
+        # 403 = bot protection (soft-valid) — the page exists but blocks our request
+        if status == 403:
+            is_known_protected = any(d in domain for d in BOT_PROTECTED_DOMAINS)
+            return {
+                "url": url,
+                "valid": True,  # Treat as valid — page exists
+                "status_code": status,
+                "error": None,
+                "soft_valid": True,
+                "reason": "bot_protected" if is_known_protected else "forbidden_but_live",
+                "final_url": str(response.url) if response.url != url else None
+            }
+        
         return {
             "url": url,
-            "valid": 200 <= response.status_code < 400,
-            "status_code": response.status_code,
-            "error": None,
+            "valid": 200 <= status < 400,
+            "status_code": status,
+            "error": None if 200 <= status < 400 else f"HTTP {status}",
+            "soft_valid": False,
             "final_url": str(response.url) if response.url != url else None
         }
     except requests.exceptions.Timeout:
-        return {"url": url, "valid": False, "status_code": None, "error": "timeout"}
+        return {"url": url, "valid": False, "status_code": None, "error": "timeout", "soft_valid": False}
     except requests.exceptions.SSLError:
-        return {"url": url, "valid": False, "status_code": None, "error": "ssl_error"}
+        return {"url": url, "valid": False, "status_code": None, "error": "ssl_error", "soft_valid": False}
     except requests.exceptions.ConnectionError:
-        return {"url": url, "valid": False, "status_code": None, "error": "connection_error"}
+        return {"url": url, "valid": False, "status_code": None, "error": "connection_error", "soft_valid": False}
     except Exception as e:
-        return {"url": url, "valid": False, "status_code": None, "error": str(e)[:100]}
+        return {"url": url, "valid": False, "status_code": None, "error": str(e)[:100], "soft_valid": False}
 
 def validate_urls_in_reports(reports: Dict[str, str], max_workers: int = 5) -> Dict[str, Any]:
     """
@@ -123,10 +156,12 @@ def validate_urls_in_reports(reports: Dict[str, str], max_workers: int = 5) -> D
     
     valid = [r for r in results if r["valid"]]
     invalid = [r for r in results if not r["valid"]]
+    soft_valid = [r for r in valid if r.get("soft_valid")]
     
     summary_parts = [f"Validated {len(unique_urls)} URLs"]
     if valid:
-        summary_parts.append(f"✅ {len(valid)} valid")
+        sv_note = f" ({len(soft_valid)} bot-protected)" if soft_valid else ""
+        summary_parts.append(f"✅ {len(valid)} valid{sv_note}")
     if invalid:
         summary_parts.append(f"❌ {len(invalid)} broken")
         # Log which agents had broken URLs
@@ -141,6 +176,7 @@ def validate_urls_in_reports(reports: Dict[str, str], max_workers: int = 5) -> D
     return {
         "valid": valid,
         "invalid": invalid,
+        "soft_valid": soft_valid,
         "all_urls": results,
         "url_sources": url_sources,
         "summary": " | ".join(summary_parts)
@@ -791,6 +827,24 @@ class DatabaseManager:
         self.conn.commit()
         logger.info(f"Saved output {output_id} for task {task_id} (skipped={was_skipped}, input_hash={input_hash[:8] if input_hash else 'N/A'})")
         return output_id
+    
+    def update_output_content(self, output_id: str, content: str, summary: str = None):
+        """Update an existing output's content after URL validation/cleanup."""
+        if not output_id:
+            return
+        content_hash = compute_content_hash(content)
+        if summary:
+            self.cursor.execute(
+                """UPDATE outputs SET content = %s, summary = %s, content_hash = %s WHERE id = %s""",
+                (content, summary, content_hash, output_id)
+            )
+        else:
+            self.cursor.execute(
+                """UPDATE outputs SET content = %s, content_hash = %s WHERE id = %s""",
+                (content, content_hash, output_id)
+            )
+        self.conn.commit()
+        logger.info(f"Updated output {output_id} after URL validation (new hash: {content_hash[:8]})")
     
     def track_token_usage(self, agent_id: str, task_id: str, tokens_used: int, cost: float = 0.0):
         """Track token usage for an agent."""
@@ -1872,6 +1926,18 @@ KERNEL DATA (integrate into Kernel section):
             ruthie_content_clean = ruthie_result['content']
             sarah_content_clean = sarah_result['content']
             
+            # Always log URL validation results (even if all valid)
+            soft_valid_count = len(url_validation.get('soft_valid', []))
+            db.log_activity(rose_agent_id, None, 'INFO',
+                f"Rose validated URLs: {url_validation['summary']}",
+                {
+                    "total_urls": len(url_validation.get('all_urls', [])),
+                    "valid_count": len(url_validation.get('valid', [])),
+                    "soft_valid_count": soft_valid_count,
+                    "invalid_count": len(broken_urls),
+                    "broken_urls": broken_urls[:10]  # Log first 10 broken URLs
+                })
+            
             if broken_urls:
                 logger.warning(f"🔗 Removing {len(broken_urls)} broken URLs from reports")
                 for r in url_validation.get('invalid', []):
@@ -1881,15 +1947,20 @@ KERNEL DATA (integrate into Kernel section):
                 ruthie_content_clean = remove_broken_urls_from_content(ruthie_result['content'], broken_urls)
                 sarah_content_clean = remove_broken_urls_from_content(sarah_result['content'], broken_urls)
                 
-                # Log URL validation activity
-                db.log_activity(rose_agent_id, None, 'INFO',
-                    f"Rose validated URLs: {url_validation['summary']}",
-                    {
-                        "total_urls": len(url_validation.get('all_urls', [])),
-                        "valid_count": len(url_validation.get('valid', [])),
-                        "invalid_count": len(broken_urls),
-                        "broken_urls": broken_urls[:10]  # Log first 10 broken URLs
-                    })
+                # Update individual agent outputs in DB with cleaned content
+                # This ensures the stored outputs don't contain broken links
+                if cathy_result.get('output_id') and cathy_content_clean != cathy_result['content']:
+                    db.update_output_content(cathy_result['output_id'], cathy_content_clean, cathy_content_clean[:200])
+                    logger.info("   📝 Updated Cathy's stored output with cleaned URLs")
+                if ruthie_result.get('output_id') and ruthie_content_clean != ruthie_result['content']:
+                    db.update_output_content(ruthie_result['output_id'], ruthie_content_clean, ruthie_content_clean[:200])
+                    logger.info("   📝 Updated Ruthie's stored output with cleaned URLs")
+                if sarah_result.get('output_id') and sarah_content_clean != sarah_result['content']:
+                    db.update_output_content(sarah_result['output_id'], sarah_content_clean, sarah_content_clean[:200])
+                    logger.info("   📝 Updated Sarah's stored output with cleaned URLs")
+            
+            if soft_valid_count > 0:
+                logger.info(f"🔗 {soft_valid_count} URLs returned 403 (bot protection) — treated as valid")
             
             logger.info("-" * 40)
             logger.info("Step 4b: Rose compiling Executive Summary")

@@ -108,7 +108,7 @@ export function RecentOutputs({ outputs }: RecentOutputsProps) {
                 <div className="flex items-start gap-2 sm:gap-3">
                   <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500 mt-0.5 sm:mt-1 flex-shrink-0" />
                   <p className="text-xs sm:text-sm text-gray-300 leading-relaxed line-clamp-2 sm:line-clamp-3">
-                    {output?.summary ?? stripMarkdown(output?.content ?? "", 150) ?? "No content available"}
+                    {stripMarkdown(output?.summary ?? output?.content ?? "", 150) || "No content available"}
                   </p>
                 </div>
               )}
