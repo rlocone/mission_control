@@ -13,7 +13,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Live roster only — INACTIVE / reserved agents (e.g. Ruthie) stay out.
     const agents = await prisma.agent.findMany({
+      where: {
+        status: { in: ["ACTIVE", "BUSY"] },
+      },
       include: {
         _count: {
           select: {

@@ -17,14 +17,14 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(baseUrl),
     title: "Mission Control Dashboard",
-    description: "Multi-Agent Orchestration System Dashboard - Monitor Rose, Cathy, and Ruthie",
+    description: "Monitor live fleet agents",
     icons: {
       icon: "/favicon.svg",
       shortcut: "/favicon.svg",
     },
     openGraph: {
       title: "Mission Control Dashboard",
-      description: "Multi-Agent Orchestration System Dashboard",
+      description: "Monitor live fleet agents",
       images: ["/og-image.png"],
     },
   };
