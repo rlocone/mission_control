@@ -31,12 +31,13 @@ async function main() {
     },
   });
 
+  // Ruthie is reserved / not live (fleet README SoT) — seed INACTIVE so local seeds don't reintroduce her as live.
   const ruthie = await prisma.agent.create({
     data: {
       name: 'Ruthie',
-      role: 'Medical Research Specialist',
+      role: 'Medical Research Specialist (reserved)',
       appId: '7da3fc5a0',
-      status: AgentStatus.ACTIVE,
+      status: AgentStatus.INACTIVE,
     },
   });
 
@@ -56,10 +57,10 @@ async function main() {
     {
       agentId: rose.id,
       taskName: 'Daily Orchestration',
-      description: 'Coordinate daily research tasks between Cathy and Ruthie',
+      description: 'Coordinate daily research tasks between Cathy and other specialists',
       status: TaskStatus.COMPLETED,
       completedAt: new Date(Date.now() - 86400000),
-      output: 'Successfully delegated AI research to Cathy and pregnancy research to Ruthie.',
+      output: 'Successfully delegated AI research to Cathy.',
     },
     {
       agentId: rose.id,
@@ -186,15 +187,11 @@ async function main() {
   const logMessages = [
     { agentId: rose.id, level: LogLevel.INFO, message: 'Daily orchestration started' },
     { agentId: rose.id, level: LogLevel.INFO, message: 'Delegated AI research task to Cathy' },
-    { agentId: rose.id, level: LogLevel.INFO, message: 'Delegated pregnancy research task to Ruthie' },
     { agentId: cathy.id, level: LogLevel.INFO, message: 'Starting GPT-5 analysis task' },
     { agentId: cathy.id, level: LogLevel.DEBUG, message: 'Fetching latest articles from AI news sources' },
     { agentId: cathy.id, level: LogLevel.INFO, message: 'GPT-5 analysis completed successfully' },
     { agentId: cathy.id, level: LogLevel.WARN, message: 'Rate limit approached on news API' },
-    { agentId: ruthie.id, level: LogLevel.INFO, message: 'Starting IVF research task' },
-    { agentId: ruthie.id, level: LogLevel.DEBUG, message: 'Querying medical databases' },
-    { agentId: ruthie.id, level: LogLevel.INFO, message: 'IVF research completed' },
-    { agentId: ruthie.id, level: LogLevel.INFO, message: 'Starting epigenetics research' },
+    { agentId: ruthie.id, level: LogLevel.INFO, message: 'Reserved seat — no live orchestration' },
     { agentId: sarah.id, level: LogLevel.INFO, message: 'War Room initialized - starting daily cyber briefing' },
     { agentId: sarah.id, level: LogLevel.DEBUG, message: 'Querying NVD and MITRE databases' },
     { agentId: sarah.id, level: LogLevel.WARN, message: 'High-severity CVE detected - CVSS 9.8' },
